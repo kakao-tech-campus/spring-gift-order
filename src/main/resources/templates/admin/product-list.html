@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 관리</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 2em; background-color: #f8f9fa; color: #212529; }
+        h1, h2 { border-bottom: 2px solid #dee2e6; padding-bottom: 10px; color: #495057; }
+        nav { margin-bottom: 2em; background-color: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav a { margin-right: 15px; text-decoration: none; color: #007bff; font-weight: bold; font-size: 1.1em; }
+        nav a:hover { text-decoration: underline; }
+        .form-container { max-width: 600px; margin-bottom: 2em; padding: 1.5em; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+        .form-group { margin-bottom: 1em; }
+        .form-group label { display: block; margin-bottom: 0.5em; font-weight: bold; }
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .button { display: inline-block; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; color: white; margin-right: 5px; }
+        .button-primary { background-color: #007bff; }
+        .button-secondary { background-color: #17a2b8; }
+        .button-warning { background-color: #ffc107; }
+        .button-danger { background-color: #dc3545; }
+        .management-buttons { display: flex; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; vertical-align: middle;}
+        th { background-color: #f8f8f8; }
+        .product-image { max-width: 100px; max-height: 100px; }
+        .empty-list { padding: 20px; text-align: center; color: #888; }
+        .action-bar { margin: 1em 0; }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+        .pagination-container { text-align: center; margin-top: 2em; }
+        .pagination-container a, .pagination-container strong { margin: 0 5px; padding: 5px 10px; border: 1px solid #ddd; text-decoration: none; color: #007bff; }
+        .pagination-container strong { font-weight: bold; background-color: #007bff; color: white; border-color: #007bff; }
+        .pagination-container a.disabled { color: #ccc; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<h1>관리자 페이지</h1>
+
+<div th:replace="~{layout/header :: headerFragment}"></div>
+
+<div class="form-container">
+    <h2>새 상품 바로 추가</h2>
+    <form th:action="@{/admin/products/add}" th:object="${productRequest}" method="post">
+        <div class="form-group">
+            <label for="name">상품명</label>
+            <input type="text" id="name" th:field="*{name}" required>
+        </div>
+        <div class="form-group">
+            <label for="price">가격</label>
+            <input type="number" id="price" th:field="*{price}" required>
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">이미지 URL</label>
+            <input type="text" id="imageUrl" th:field="*{imageUrl}" required>
+        </div>
+        <button type="submit" class="button button-primary">바로 등록</button>
+    </form>
+</div>
+
+<h2>상품 목록</h2>
+<p>등록된 모든 상품의 목록입니다.</p>
+
+<form th:action="@{/admin/products/delete}" method="post" id="productListForm" onsubmit="return validateSelection();">
+    <div class="action-bar">
+        <button type="submit" class="button button-danger">선택 항목 삭제</button>
+        <a th:href="@{/admin/products/add}" class="button button-secondary">새 상품 등록 페이지로 이동</a>
+    </div>
+
+    <div th:if="${!productsPage.empty}">
+        <table>
+            <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>ID</th>
+                <th>상품명</th>
+                <th>가격</th>
+                <th>이미지</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${productsPage.content}">
+                <td>
+                    <label th:for="'product-' + ${product.id()}" class="visually-hidden" th:text="${product.name()}"></label>
+                    <input type="checkbox" name="productIds" th:value="${product.id()}" th:id="'product-' + ${product.id()}">
+                </td>
+                <td th:text="${product.id()}">1</td>
+                <td th:text="${product.name()}">상품 이름 예시</td>
+                <td th:text="${product.price()}">10000</td>
+                <td><img class="product-image" th:src="${product.imageUrl()}" alt="상품 이미지"></td>
+                <td>
+                    <div class="management-buttons">
+                        <a th:href="@{/admin/products/edit/{id}(id=${product.id()})}" class="button button-warning">수정</a>
+                        <button type="button" class="button button-danger" th:onclick="'deleteSingleProduct(' + ${product.id()} + ')'">삭제</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<div th:if="${productsPage.empty}">
+    <p class="empty-list">등록된 상품이 없습니다.</p>
+</div>
+
+<div th:if="${productsPage.totalPages > 0}" class="pagination-container"
+     th:with="start=${(productsPage.number div 10) * 10 + 1},
+              end=(${start + 9 < productsPage.totalPages ? start + 9 : productsPage.totalPages})">
+
+    <a th:href="@{/admin/products(page=0)}" th:classappend="${productsPage.first} ? 'disabled' : ''"> &lt;&lt; </a>
+    <a th:href="@{/admin/products(page=${productsPage.number - 1})}" th:classappend="${productsPage.first} ? 'disabled' : ''"> &lt; </a>
+
+    <span th:each="page: ${#numbers.sequence(start, end)}">
+        <a th:if="${page != productsPage.number + 1}" th:href="@{/admin/products(page=${page - 1})}" th:text="${page}"></a>
+        <strong th:if="${page == productsPage.number + 1}" th:text="${page}"></strong>
+    </span>
+
+    <a th:href="@{/admin/products(page=${productsPage.number + 1})}" th:classappend="${productsPage.last} ? 'disabled' : ''"> &gt; </a>
+    <a th:href="@{/admin/products(page=${productsPage.totalPages - 1})}" th:classappend="${productsPage.last} ? 'disabled' : ''"> &gt;&gt; </a>
+</div>
+
+<script>
+    document.getElementById('selectAll').addEventListener('click', function(event) {
+        const checkboxes = document.querySelectorAll('input[name="productIds"]');
+        for (const checkbox of checkboxes) {
+            checkbox.checked = event.target.checked;
+        }
+    });
+
+    function validateSelection() {
+        const checkedBoxes = document.querySelectorAll('input[name="productIds"]:checked');
+        if (checkedBoxes.length === 0) {
+            alert('삭제할 상품을 하나 이상 선택해주세요.');
+            return false;
+        }
+        return confirm('선택된 ' + checkedBoxes.length + '개의 상품을 정말로 삭제하시겠습니까?');
+    }
+
+    function deleteSingleProduct(productId) {
+        if (confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/admin/products/delete/' + productId;
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+
+</body>
+</html>

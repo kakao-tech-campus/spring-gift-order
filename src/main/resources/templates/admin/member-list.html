@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 2em; background-color: #f8f9fa; color: #212529; }
+        h1, h2 { border-bottom: 2px solid #dee2e6; padding-bottom: 10px; color: #495057; }
+        nav { margin-bottom: 2em; background-color: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav a { margin-right: 15px; text-decoration: none; color: #007bff; font-weight: bold; font-size: 1.1em; }
+        nav a:hover { text-decoration: underline; }
+        .button { display: inline-block; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; color: white; margin-right: 5px; font-weight: 500; }
+        .button-primary { background-color: #007bff; }
+        .button-primary:hover { background-color: #0069d9; }
+        .button-warning { background-color: #ffc107; color: #212529; }
+        .button-warning:hover { background-color: #e0a800; }
+        .button-danger { background-color: #dc3545; }
+        .button-danger:hover { background-color: #c82333; }
+        .action-bar { margin-bottom: 1em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+<h1>관리자 페이지</h1>
+
+<div th:replace="~{layout/header :: headerFragment}"></div>
+
+<h2>회원 목록</h2>
+<div class="action-bar">
+    <a th:href="@{/admin/members/add}" class="button button-primary">새 회원 추가</a>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>이메일</th>
+        <th>관리</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="member : ${members}">
+        <td th:text="${member.id()}">1</td>
+        <td th:text="${member.email()}">user@example.com</td>
+        <td>
+            <a th:href="@{/admin/members/edit/{id}(id=${member.id()})}" class="button button-warning">수정</a>
+            <form th:action="@{/admin/members/delete/{id}(id=${member.id()})}" method="post" style="display:inline;" onsubmit="return confirm('정말로 이 회원을 삭제하시겠습니까?');">
+                <button type="submit" class="button button-danger">삭제</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

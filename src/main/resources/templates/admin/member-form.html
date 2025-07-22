@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 회원 추가</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 2em; background-color: #f8f9fa; color: #212529; }
+        h1 { border-bottom: 2px solid #dee2e6; padding-bottom: 10px; color: #495057; }
+        .form-container { max-width: 500px; margin-top: 2em; padding: 2em; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1.5em; }
+        .form-group label { display: block; margin-bottom: 0.5em; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
+        .form-actions { margin-top: 2em; }
+        .button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; color: white; font-weight: 500; }
+        .button-primary { background-color: #007bff; }
+        .button-secondary { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+<h1>새 회원 추가</h1>
+<div class="form-container">
+    <form th:action="@{/admin/members/add}" th:object="${memberRequest}" method="post">
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" th:field="*{email}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" th:field="*{password}" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">등록</button>
+            <a th:href="@{/admin/members}" class="button button-secondary">취소</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
