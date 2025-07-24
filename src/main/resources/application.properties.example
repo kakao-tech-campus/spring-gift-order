@@ -1,0 +1,26 @@
+spring.application.name=spring-gift
+spring.thymeleaf.cache=false
+spring.thymeleaf.check-template-location=true
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+
+# H2 Database Settings
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.sql.init.mode=always
+
+# JPA Settings
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.hibernate.ddl-auto=create
+
+# JWT Secret Key
+jwt.secret.key=YOUR_OWN_JWT_SECRET_KEY
+
+# Kakao OAuth Settings
+kakao.client-id=YOUR_OWN_KAKAO_CLIENT_ID
+kakao.redirect-uri=http://localhost:8080/oauth/kakao/callback
