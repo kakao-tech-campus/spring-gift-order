@@ -61,4 +61,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidOptionQuantity(InvalidOptionQuantityException e) {
         return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(KakaoApiException.class)
+    public ResponseEntity<ErrorResponse> handleKakaoApi(KakaoApiException e) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ErrorResponse(e.getMessage()));
+    }
 }

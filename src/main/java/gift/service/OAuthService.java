@@ -5,12 +5,14 @@ import gift.dto.KakaoTokenResponse;
 import gift.dto.KakaoUserInfoResponse;
 import gift.dto.LoginResponse;
 import gift.entity.Member;
+import gift.exception.KakaoApiException;
 import gift.repository.MemberRepository;
 import gift.util.JwtUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -61,9 +63,13 @@ public class OAuthService {
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<KakaoTokenResponse> response = restTemplate.postForEntity(url, request, KakaoTokenResponse.class);
 
-        return response.getBody().accessToken();
+        try {
+            ResponseEntity<KakaoTokenResponse> response = restTemplate.postForEntity(url, request, KakaoTokenResponse.class);
+            return response.getBody().accessToken();
+        } catch (RestClientException e) {
+            throw new KakaoApiException("카카오 서버에서 액세스 토큰을 받아오는 중 오류가 발생했습니다.", e);
+        }
     }
 
     private KakaoUserInfoResponse getUserInfo(String accessToken) {
@@ -73,8 +79,12 @@ public class OAuthService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<KakaoUserInfoResponse> response = restTemplate.postForEntity(url, request, KakaoUserInfoResponse.class);
 
-        return response.getBody();
+        try {
+            ResponseEntity<KakaoUserInfoResponse> response = restTemplate.postForEntity(url, request, KakaoUserInfoResponse.class);
+            return response.getBody();
+        } catch (RestClientException e) {
+            throw new KakaoApiException("카카오 서버에서 사용자 정보를 받아오는 중 오류가 발생했습니다.", e);
+        }
     }
 }
