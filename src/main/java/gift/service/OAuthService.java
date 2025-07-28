@@ -1,6 +1,7 @@
 package gift.service;
 
 import gift.client.KakaoApiClient;
+import gift.config.KakaoProperties;
 import gift.dto.KakaoUserInfoResponse;
 import gift.dto.LoginResponse;
 import gift.entity.Member;
@@ -16,11 +17,19 @@ public class OAuthService {
     private final KakaoApiClient kakaoApiClient;
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
+    private final KakaoProperties kakaoProperties;
 
-    public OAuthService(KakaoApiClient kakaoApiClient, MemberRepository memberRepository, JwtUtil jwtUtil) {
+    public OAuthService(KakaoApiClient kakaoApiClient, MemberRepository memberRepository, JwtUtil jwtUtil, KakaoProperties kakaoProperties) {
         this.kakaoApiClient = kakaoApiClient;
         this.memberRepository = memberRepository;
         this.jwtUtil = jwtUtil;
+        this.kakaoProperties = kakaoProperties;
+    }
+
+    public String getKakaoAuthorizationUrl() {
+        return "https://kauth.kakao.com/oauth/authorize?response_type=code" +
+                "&client_id=" + kakaoProperties.clientId() +
+                "&redirect_uri=" + kakaoProperties.redirectUri();
     }
 
     public LoginResponse loginWithKakao(String authorizationCode) {
