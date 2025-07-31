@@ -45,11 +45,15 @@ public class OAuthService {
         KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo(tokenResponse.accessToken());
 
         // 2. 사용자 정보로 회원을 찾거나, 없으면 새로 가입시킵니다.
-        Member member = memberRepository.findByEmail(userInfo.kakaoAccount().email())
+        Member member = memberRepository.findByKakaoId(userInfo.id())
                 .orElseGet(() -> {
+                    // 카카오로부터 받은 이메일 (없을 수도 있으므로 null 처리)
+                    String email = (userInfo.kakaoAccount() != null) ? userInfo.kakaoAccount().email() : null;
                     String randomPassword = UUID.randomUUID().toString();
                     String encodedPassword = BCrypt.hashpw(randomPassword, BCrypt.gensalt());
-                    Member newMember = new Member(userInfo.kakaoAccount().email(), encodedPassword, "USER");
+
+                    // 카카오 ID와 함께 새로운 회원을 생성합니다.
+                    Member newMember = new Member(email, encodedPassword, "USER", userInfo.id());
                     return memberRepository.save(newMember);
                 });
 

@@ -20,6 +20,9 @@ public class Member {
     @Column(nullable = false)
     private String role;
 
+    @Column(name = "kakao_id", unique = true)
+    private Long kakaoId;
+
     @Column(name = "kakao_access_token")
     private String kakaoAccessToken;
 
@@ -35,6 +38,13 @@ public class Member {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public Member(String email, String password, String role, Long kakaoId) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.kakaoId = kakaoId;
     }
 
     public Long getId() { return id; }
