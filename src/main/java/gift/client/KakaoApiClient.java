@@ -7,6 +7,7 @@ import gift.dto.KakaoUserInfoResponse;
 import gift.exception.KakaoApiException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -22,7 +23,7 @@ public class KakaoApiClient {
         this.kakaoProperties = kakaoProperties;
     }
 
-    public String getAccessToken(String code) {
+    public KakaoTokenResponse getAccessTokenAsObject(String code) {
         String url = "https://kauth.kakao.com/oauth/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -36,7 +37,7 @@ public class KakaoApiClient {
 
         try {
             ResponseEntity<KakaoTokenResponse> response = restTemplate.postForEntity(url, request, KakaoTokenResponse.class);
-            return response.getBody().accessToken();
+            return response.getBody();
         } catch (RestClientException e) {
             throw new KakaoApiException("카카오 서버에서 액세스 토큰을 받아오는 중 오류가 발생했습니다.", e);
         }
@@ -55,6 +56,25 @@ public class KakaoApiClient {
             return response.getBody();
         } catch (RestClientException e) {
             throw new KakaoApiException("카카오 서버에서 사용자 정보를 받아오는 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    public KakaoTokenResponse refreshAccessToken(String refreshToken) {
+        String url = "https://kauth.kakao.com/oauth/token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "refresh_token");
+        body.add("client_id", kakaoProperties.clientId());
+        body.add("refresh_token", refreshToken);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        try {
+            return restTemplate.postForObject(url, request, KakaoTokenResponse.class);
+        } catch (RestClientException e) {
+            throw new KakaoApiException("카카오 서버에서 액세스 토큰을 갱신하는 중 오류가 발생했습니다.", e);
         }
     }
 }
