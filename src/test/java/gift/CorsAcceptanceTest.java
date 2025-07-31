@@ -22,7 +22,7 @@ class CorsAcceptanceTest {
     @Test
     @DisplayName("CORS Preflight 요청 테스트")
     void corsPreflightTest() throws Exception {
-        String allowedOrigin = "http://localhost:3000";
+        String allowedOrigin = "http://34.239.185.104:8080";
 
         mockMvc.perform(
                         options("/api/products")
