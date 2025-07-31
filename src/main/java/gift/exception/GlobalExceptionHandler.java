@@ -66,4 +66,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleKakaoApi(KakaoApiException e) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(OptionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleOptionNotFound(OptionNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+    }
 }
